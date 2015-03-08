@@ -3,7 +3,7 @@ from __future__ import division
 from log import Log
 from hypothesis import LinearHypothesis, LogisticHypothesis
 from cost_function import LinearCostFunction, LogisticCostFunction
-from data_reader import DataReader
+from data_reader import LinearRegressionDataReader, LogisticRegressionDataReader
 from normaliser import Normaliser
 from transformer import Transformer
 from gradient_descent import GradientDescent
@@ -15,13 +15,15 @@ class Helper:
     def __init__(self, file_name):
         self.file_name = file_name
         self.err_check = False
-        self.alpha = 1
+        self.learning_rate = 1
         self.regularisation_coefficient = 0
         self.max_iterations = 1000
         self.with_linear = False
         self.other_terms = {}
         self.hypothesis_class = None
         self.cost_fn_class = None
+        self.data_reader_class = None
+        self.output_value_checker = None
         self.normalise_data = True
         self.test_on_completion = False
 
@@ -29,8 +31,8 @@ class Helper:
         self.err_check = val
         return self
 
-    def with_alpha(self, val):
-        self.alpha = val
+    def with_learning_rate(self, val):
+        self.learning_rate = val
         return self
 
     def with_regularisation_coefficient(self, val):
@@ -52,11 +54,13 @@ class Helper:
     def with_linear_regression(self):
         self.hypothesis_class = LinearHypothesis
         self.cost_fn_class = LinearCostFunction
+        self.data_reader_class = LinearRegressionDataReader
         return self
 
     def with_logistic_regression(self):
         self.hypothesis_class = LogisticHypothesis
         self.cost_fn_class = LogisticCostFunction
+        self.data_reader_class = LogisticRegressionDataReader
         return self
 
     def with_normalisation(self, val):
@@ -72,7 +76,7 @@ class Helper:
 
         raw_data_lines = open(self.file_name).readlines()
 
-        reader = DataReader(raw_data_lines)
+        reader = self.data_reader_class(raw_data_lines)
 
         raw_data_inputs     = reader.input_values
         raw_data_outputs    = reader.output_values
@@ -105,7 +109,7 @@ class Helper:
         normalised_variables = map(normaliser.normalise, raw_variables)
 
         hypothesis    = self.hypothesis_class(len(normalised_variables))
-        cost_function = self.cost_fn_class(raw_data_outputs, self.alpha, self.regularisation_coefficient)
+        cost_function = self.cost_fn_class(raw_data_outputs, self.learning_rate, self.regularisation_coefficient)
 
         gradient_descent = GradientDescent(hypothesis, cost_function, normalised_variables, raw_data_outputs)
         signal.signal(signal.SIGINT, gradient_descent.interrupt)

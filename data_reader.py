@@ -1,4 +1,5 @@
-class DataReader:
+
+class DataReader(object):
     def __init__(self, lines):
         inputs   = []
         outputs  = []
@@ -25,10 +26,11 @@ class DataReader:
 
                     if n is None:
                         n = len(data_parts)
-                    
-                    if n == len(data_parts):
+
+                    output_value = float(result_part)
+                    if n == len(data_parts) and self.check_output_value(output_value):
                         inputs.append(map(float, data_parts))
-                        outputs.append(float(result_part))
+                        outputs.append(output_value)
 
                     else:
                         line_err = True    
@@ -46,3 +48,11 @@ class DataReader:
         self.accepted_count  = ok_count
         self.rejected_lines  = rejected
         self.input_var_count = n
+
+class LinearRegressionDataReader(DataReader):
+    def check_output_value(self, value):
+        return True
+
+class LogisticRegressionDataReader(DataReader):
+    def check_output_value(self, value):
+        return value in (0,1)
