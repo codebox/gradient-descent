@@ -25,7 +25,7 @@ class Helper:
         self.data_reader_class = None
         self.output_value_checker = None
         self.normalise_data = True
-        self.test_data_size = 0
+        self.test_data_size = 0.3
 
     def with_error_checking(self):
         self.err_check = True
