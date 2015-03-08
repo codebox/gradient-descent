@@ -25,10 +25,10 @@ class Helper:
         self.data_reader_class = None
         self.output_value_checker = None
         self.normalise_data = True
-        self.test_on_completion = False
+        self.test_data_size = 0
 
-    def with_error_checking(self, val):
-        self.err_check = val
+    def with_error_checking(self):
+        self.err_check = True
         return self
 
     def with_learning_rate(self, val):
@@ -67,8 +67,8 @@ class Helper:
         self.normalise_data = val
         return self
 
-    def with_test_on_completion(self):
-        self.test_on_completion = True
+    def with_test_on_completion(self, test_data_size):
+        self.test_data_size = test_data_size
         return self
 
     def go(self):
@@ -76,10 +76,10 @@ class Helper:
 
         raw_data_lines = open(self.file_name).readlines()
 
-        reader = self.data_reader_class(raw_data_lines)
+        reader = self.data_reader_class(raw_data_lines, self.test_data_size)
 
-        raw_data_inputs     = reader.input_values
-        raw_data_outputs    = reader.output_values
+        raw_data_inputs     = reader.training_input_values
+        raw_data_outputs    = reader.training_output_values
         accepted_line_count = reader.accepted_count
         rejected_lines      = reader.rejected_lines
         raw_input_var_count = reader.input_var_count
@@ -90,18 +90,25 @@ class Helper:
 
         log.bar()
         log.info('Read %s, loaded %s lines, rejected %s, %s input values per line' % (self.file_name, accepted_line_count, len(rejected_lines), raw_input_var_count))
+        if self.test_data_size > 0:
+            log.info('Training set size: %s' % (len(raw_data_inputs),))
+            log.info('Test set size:     %s' % (len(reader.testing_input_values),))
         log.info('Press Ctrl-C at any time to stop working and show results')
         log.bar()
 
-        # Convert the raw inputs using the transformer functions
-        transformer = Transformer(raw_data_inputs)
+        def build_transformer(raw_input_values, with_linear_terms, other_terms):
+            # Convert the raw inputs using the transformer functions
+            transformer = Transformer(raw_input_values)
 
-        if (self.with_linear):
-            transformer.add_linear_terms()
+            if (with_linear_terms):
+                transformer.add_linear_terms()
 
-        for name, fn in self.other_terms.iteritems():
-            transformer.add_new_term(name, fn)
+            for name, fn in other_terms.iteritems():
+                transformer.add_new_term(name, fn)
 
+            return transformer
+
+        transformer = build_transformer(raw_data_inputs, self.with_linear, self.other_terms)
         raw_variables = transformer.variables
 
         # Apply Feature Scaling and Mean Normalisation
@@ -126,12 +133,14 @@ class Helper:
         final_thetas = denormaliser.denormalise(normalised_thetas, normalised_variables)
 
         # Run hypothesis against original values
-        if self.test_on_completion:
+        if self.test_data_size > 0:
             log.bar()
             hypothesis.theta_values = final_thetas
 
-            raw_variable_data = zip(*map(lambda v : v.data, raw_variables))
-            for i, o in zip(raw_variable_data, raw_data_outputs):
+            transformer = build_transformer(reader.testing_input_values, self.with_linear, self.other_terms)
+
+            raw_variable_data = zip(*map(lambda v : v.data, transformer.variables))
+            for i, o in zip(raw_variable_data, reader.testing_output_values):
                 log.info('{0:>8} .... {1: .8f}'.format(o, hypothesis.calculate(i)))
 
         # Display results

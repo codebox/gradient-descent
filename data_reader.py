@@ -1,6 +1,6 @@
 
 class DataReader(object):
-    def __init__(self, lines):
+    def __init__(self, lines, test_proportion):
         inputs   = []
         outputs  = []
         rejected = []
@@ -43,8 +43,13 @@ class DataReader(object):
             else:
                 ok_count += 1
 
-        self.input_values    = inputs
-        self.output_values   = outputs
+        t = int(round(ok_count * (1 - test_proportion)))
+
+        self.training_input_values  = inputs[:t]
+        self.training_output_values = outputs[:t]
+        self.testing_input_values  = inputs[t:]
+        self.testing_output_values  = outputs[t:]
+
         self.accepted_count  = ok_count
         self.rejected_lines  = rejected
         self.input_var_count = n
