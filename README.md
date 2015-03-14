@@ -74,9 +74,9 @@ function object accepting a single parameter, which will be a list containing al
 This method should be used to add custom, non-linear terms to the hypothesis:
 
 <pre>
-    .with_term('w^2',    lambda l: l[0] * l[0])         # Square of the first input value
-    .with_term('log(n)', lambda l: math.log(l[3], 10))  # Logarithm (base 10) of the 4th input value
-    .with_term('a*b*c',  lambda l: l[0] * l[1] * l[2])  # Product of the first 3 input values
+.with_term('w^2',    lambda l: l[0] * l[0])         # Square of the first input value
+.with_term('log(n)', lambda l: math.log(l[3], 10))  # Logarithm (base 10) of the 4th input value
+.with_term('a*b*c',  lambda l: l[0] * l[1] * l[2])  # Product of the first 3 input values
 </pre>
 
 #### with_linear_terms
@@ -168,10 +168,10 @@ However four of these coefficients are very close to zero, so it is safe to assu
     output = -4.99921928 + (1.00003066 * M) + (4.99956287 * log(D))
 </pre>
 
-    Each of the remaining coefficients are close to an integer value, so we can further simplify the equation by rounding them as follows: 
+Each of the remaining coefficients are close to an integer value, so we can further simplify the equation by rounding them as follows: 
 
 <pre>
     output = -5 + M + 5 * log(D)
 </pre>
 
-    This equation matches [the one used by astronomers](http://www.astro.cornell.edu/academics/courses/astro201/mag_absolute.htm) to calculate magnitude values.
+This equation matches [the one used by astronomers](http://www.astro.cornell.edu/academics/courses/astro201/mag_absolute.htm) to calculate magnitude values.
