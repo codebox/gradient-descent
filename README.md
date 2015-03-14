@@ -45,7 +45,8 @@ Helper('house_price_data.txt') \
     .with_alpha(0.1) \
     .with_iterations(30000) \
     .with_linear_terms() \
-    .go()</pre>
+    .go()
+</pre>
 
 The Helper is configured using the following methods:
 
@@ -136,9 +137,10 @@ Helper('star_data.txt') \
     .with_term('D^2',    lambda l : l[0] * l[0]) \
     .with_term('D*M',    lambda l : l[0] * l[1]) \
     .with_term('log(D)', lambda l : math.log(l[0], 10)) \
-    .go()</pre>
+    .go()
+</pre>
 
-    After 30,000 iterations the following hypothesis has been calculated:
+After 30,000 iterations the following hypothesis has been calculated:
 
 <pre>
 -------------------------------
@@ -153,7 +155,8 @@ Theta values:
      D*M =      -0.00000000
 
 Completed 30000 iterations
--------------------------------</pre>
+-------------------------------
+</pre>
 
 The numbers shown against each of the terms are their coefficients in the resulting hypothesis equation. Notice that in addition to the 6 terms we added to the Helper, there is also a 7th term called 'x0'. This term is automatically added to the hypothesis by the utility, and is simply a constant term that does not depend on any of the input values.
 This output can be interpreted to mean that the best hypothesis found by the utility (i.e. the best way to find the output from the inputs) is by using the equation:
